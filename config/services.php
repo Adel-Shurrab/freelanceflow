@@ -35,4 +35,19 @@ return [
         ],
     ],
 
+    'mailgun' => [
+        'domain' => env('MAILGUN_DOMAIN'),
+        'secret' => env('MAILGUN_SECRET'),
+        'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
+        'scheme' => 'https',
+    ],
+    
+    'pusher' => [
+        'app_id' => env('PUSHER_APP_ID'),
+        'key' => env('PUSHER_APP_KEY'),
+        'secret' => env('PUSHER_APP_SECRET'),
+        'cluster' => env('PUSHER_APP_CLUSTER'),
+        'useTLS' => true,
+    ],
+
 ];
