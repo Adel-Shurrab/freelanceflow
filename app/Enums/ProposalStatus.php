@@ -32,7 +32,7 @@ enum ProposalStatus: string
         };
     }
 
-    public function isActive(): bool
+    public function countsAsActiveForProject(): bool
     {
         return ! in_array($this, [self::Rejected, self::Expired]);
     }

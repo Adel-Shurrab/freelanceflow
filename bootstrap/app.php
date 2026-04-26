@@ -1,8 +1,16 @@
 <?php
 
+use App\Exceptions\BaseException;
+use App\Providers\AppServiceProvider;
+use App\Providers\RepositoryServiceProvider;
+use App\Providers\ViewServiceProvider;
+use App\Support\ApiResponse;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -10,9 +18,47 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withProviders([
+        AppServiceProvider::class,
+        RepositoryServiceProvider::class,
+        ViewServiceProvider::class,
+    ])
     ->withMiddleware(function (Middleware $middleware): void {
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
-    })->create();
+        $exceptions->render(
+            function (BaseException $exception, Request $request) {
+                if (! $request->expectsJson() && ! $request->is('api/*')) {
+                    return null;
+                }
+
+                return ApiResponse::error(
+                    $exception->getMessage(),
+                    $exception->getContext() ?: null,
+                    $exception->httpStatusCode(),
+                );
+            },
+        );
+
+        $exceptions->render(
+            function (ModelNotFoundException $exception, Request $request) {
+                if (! $request->expectsJson() && ! $request->is('api/*')) {
+                    return null;
+                }
+
+                return ApiResponse::notFound();
+            },
+        );
+
+        $exceptions->render(
+            function (AuthorizationException $exception, Request $request) {
+                if (! $request->expectsJson() && ! $request->is('api/*')) {
+                    return null;
+                }
+
+                return ApiResponse::forbidden($exception->getMessage() ?: 'Forbidden');
+            },
+        );
+    })->create()
+;

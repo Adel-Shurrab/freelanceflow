@@ -37,10 +37,10 @@ enum ProjectStatus: string
     public function allowedTransitions(): array
     {
         return match ($this) {
-            self::Draft => [self::Active],
+            self::Draft => [self::Active, self::Cancelled],
             self::Active => [self::OnHold, self::Completed, self::Cancelled],
             self::OnHold => [self::Active, self::Cancelled],
-            self::Completed => [], // SuperAdmin only via direct DB — BR-PROJ-04
+            self::Completed => [self::Cancelled],
             self::Cancelled => [],
         };
     }

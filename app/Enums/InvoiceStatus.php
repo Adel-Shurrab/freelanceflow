@@ -36,7 +36,12 @@ enum InvoiceStatus: string
     public function locksTimeEntries(): bool
     {
         return in_array($this, [self::Sent, self::Overdue, self::Paid]);
-    } // BR-INV-04
+    }
+
+    public function canTransitionTo(self $target): bool
+    {
+        return in_array($target, $this->allowedTransitions(), true);
+    }
 
     public function allowedTransitions(): array
     {

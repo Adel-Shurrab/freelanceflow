@@ -29,8 +29,8 @@ enum UserRole: string
         };
     }
 
-    public function hasApiAccess(): bool
+    public function isAdminRole(): bool
     {
-        return in_array($this, [self::SuperAdmin, self::Admin]);
+        return in_array($this, [self::SuperAdmin, self::Admin], true);
     }
 }
