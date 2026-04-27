@@ -1,6 +1,10 @@
 <?php
 
 use App\Exceptions\BaseException;
+use App\Http\Middleware\ApiVersionMiddleware;
+use App\Http\Middleware\CheckPlanLimitMiddleware;
+use App\Http\Middleware\ForceJsonMiddleware;
+use App\Http\Middleware\LogAdminActionMiddleware;
 use App\Providers\AppServiceProvider;
 use App\Providers\RepositoryServiceProvider;
 use App\Providers\ViewServiceProvider;
@@ -15,6 +19,7 @@ use Illuminate\Http\Request;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
@@ -24,7 +29,15 @@ return Application::configure(basePath: dirname(__DIR__))
         ViewServiceProvider::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->api(prepend: [
+            ForceJsonMiddleware::class,
+            ApiVersionMiddleware::class,
+        ]);
+
+        $middleware->alias([
+            'plan.limit' => CheckPlanLimitMiddleware::class,
+            'log.admin' => LogAdminActionMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(

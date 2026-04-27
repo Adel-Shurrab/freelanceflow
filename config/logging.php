@@ -73,6 +73,14 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'admin_actions' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/admin-actions.log'),
+            'level' => env('LOG_ADMIN_ACTIONS_LEVEL', 'info'),
+            'days' => env('LOG_ADMIN_ACTIONS_DAYS', 30),
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
