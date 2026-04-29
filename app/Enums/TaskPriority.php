@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 enum TaskPriority: string
@@ -26,6 +28,16 @@ enum TaskPriority: string
             self::Medium => 'blue',
             self::High => 'orange',
             self::Urgent => 'red',
+        };
+    }
+
+    public function sortOrder(): int
+    {
+        return match ($this) {
+            self::Urgent => 1,
+            self::High => 2,
+            self::Medium => 3,
+            self::Low => 4,
         };
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 enum ProposalStatus: string
@@ -41,5 +43,10 @@ enum ProposalStatus: string
     public function isEditable(): bool
     {
         return $this === self::Draft;
+    }
+
+    public function isTerminal(): bool
+    {
+        return in_array($this, [self::Approved, self::Rejected, self::Expired]);
     }
 }

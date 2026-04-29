@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 enum ProjectStatus: string
@@ -50,6 +52,11 @@ enum ProjectStatus: string
         return in_array($target, $this->allowedTransitions());
     }
 
+    public function allowsProposals(): bool
+    {
+        return $this === self::Active;
+    }
+
     public function allowsNewInvoices(): bool
     {
         return $this === self::Active;
@@ -60,8 +67,18 @@ enum ProjectStatus: string
         return $this === self::Active;
     }
 
-    public function allowsProposals(): bool
+    public function allowsPaymentsOnExistingInvoices(): bool
     {
-        return $this === self::Active;
+        return in_array($this, [
+            self::Active,
+            self::OnHold,
+            self::Completed,
+            self::Cancelled,
+        ]);
+    }
+
+    public function isTerminal(): bool
+    {
+        return in_array($this, [self::Completed, self::Cancelled]);
     }
 }

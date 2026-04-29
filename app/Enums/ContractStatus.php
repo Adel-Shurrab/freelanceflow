@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 enum ContractStatus: string
@@ -12,9 +14,9 @@ enum ContractStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Draft => 'Draft', 
-            self::Sent => 'Sent', 
-            self::PartiallySigned => 'Partially Signed', 
+            self::Draft => 'Draft',
+            self::Sent => 'Sent',
+            self::PartiallySigned => 'Partially Signed',
             self::FullySigned => 'Fully Signed'
         };
     }
@@ -22,9 +24,9 @@ enum ContractStatus: string
     public function color(): string
     {
         return match ($this) {
-            self::Draft => 'gray', 
-            self::Sent => 'blue', 
-            self::PartiallySigned => 'yellow', 
+            self::Draft => 'gray',
+            self::Sent => 'blue',
+            self::PartiallySigned => 'yellow',
             self::FullySigned => 'green'
         };
     }
@@ -32,5 +34,10 @@ enum ContractStatus: string
     public function isFullySigned(): bool
     {
         return $this === self::FullySigned;
+    }
+
+    public function canBeSent(): bool
+    {
+        return $this === self::Draft;
     }
 }

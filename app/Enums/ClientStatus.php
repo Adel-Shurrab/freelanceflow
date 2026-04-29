@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 enum ClientStatus: string
@@ -29,6 +31,11 @@ enum ClientStatus: string
     }
 
     public function canReceiveProposals(): bool
+    {
+        return $this === self::Active;
+    }
+
+    public function canReceiveInvoices(): bool
     {
         return $this === self::Active;
     }

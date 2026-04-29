@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 enum PlanType: string
@@ -44,6 +46,15 @@ enum PlanType: string
         };
     }
 
+    public function apiRateLimitPerMinute(): ?int
+    {
+        return match ($this) {
+            self::Free => null, // blocked
+            self::Pro => 300,
+            self::Agency => 300,
+        };
+    }
+
     public function hasApiAccess(): bool
     {
         return in_array($this, [self::Pro, self::Agency]);
@@ -54,16 +65,35 @@ enum PlanType: string
         return $this === self::Agency;
     }
 
+    public function hasPresenceChannel(): bool
+    {
+        return $this === self::Agency;
+    }
+
+    public function hasMultiSheetExport(): bool
+    {
+        return $this === self::Agency;
+    }
+
     public function hasAdvancedReports(): bool
     {
         return $this === self::Agency;
     }
 
+    public function price(): int
+    {
+        return match($this) {
+            self::Free => 0,
+            self::Pro => 19,
+            self::Agency => 49,
+        };
+    }
+
     public function tokenTtlDays(): int
     {
         return match ($this) {
-            self::Free, 
-            self::Pro => 30, 
+            self::Free,
+            self::Pro => 30,
             self::Agency => 90,
         };
     }

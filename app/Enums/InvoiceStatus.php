@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 enum InvoiceStatus: string
@@ -52,5 +54,20 @@ enum InvoiceStatus: string
             self::Paid => [], // Terminal
             self::Cancelled => [], // Terminal
         };
+    }
+
+    public function isEditable(): bool
+    {
+        return $this === self::Draft;
+    }
+
+    public function isTerminal(): bool
+    {
+        return in_array($this, [self::Paid, self::Cancelled]);
+    }
+
+    public function canBeCancelled(): bool
+    {
+        return in_array($this, [self::Draft, self::Sent]);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 enum TaskStatus: string
@@ -29,7 +31,7 @@ enum TaskStatus: string
         };
     }
 
-    public function triggersMilestoneCheck(): bool
+    public function isCompleted(): bool
     {
         return $this === self::Done;
     }

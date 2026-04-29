@@ -1,32 +1,81 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Enums\PlanType;
+use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable([
+    'name',
+    'email',
+    'password',
+    'plan_type',
+    'role',
+    'phone',
+    'bio',
+    'timezone',
+    'language',
+    'notification_preferences',
+])]
+
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements HasMedia
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens;
+    use HasFactory;
+    use HasRoles;
+    use InteractsWithMedia;
+    use Notifiable;
+    use SoftDeletes;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
+            'role' => UserRole::class,
+            'plan_type' => PlanType::class,
+            'notification_preferences' => 'array',
             'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
+            'plan_started_at' => 'datetime',
+            'plan_expires_at' => 'datetime',
+            'suspended_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this
+            ->addMediaCollection('avatars')
+            ->singleFile()
+            ->useDisk('public')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/gif'])
+            ->withResponsiveImages()
+        ;
+    }
+
+    protected function avatarUrl(): Attribute
+    {
+        return Attribute::get(
+            fn () => $this->getFirstMediaUrl('avatars')
+                ?: 'https://ui-avatars.com/api/?name='.urlencode($this->name),
+        );
     }
 }
