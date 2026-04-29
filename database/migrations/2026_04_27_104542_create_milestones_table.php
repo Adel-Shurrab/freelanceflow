@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('milestones', function (Blueprint $table) {
             $table->comment('Project phases — ordered by position, auto-completed by TaskObserver');
             $table->id();
-            $table->foreignIdFor(Project::class)->constrained()->restrictOnDelete();
+            $table->foreignIdFor(Project::class)->constrained()->cascadeOnDelete();
             $table->string('name', 255);
             $table->text('description')->nullable();
             $table->enum('status', ['pending', 'in_progress', 'completed'])->default('pending');

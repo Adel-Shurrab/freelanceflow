@@ -57,7 +57,7 @@ enum PlanType: string
 
     public function hasApiAccess(): bool
     {
-        return in_array($this, [self::Pro, self::Agency]);
+        return in_array($this, [self::Pro, self::Agency], true);
     }
 
     public function hasTeamFeature(): bool
@@ -82,7 +82,7 @@ enum PlanType: string
 
     public function price(): int
     {
-        return match($this) {
+        return match ($this) {
             self::Free => 0,
             self::Pro => 19,
             self::Agency => 49,

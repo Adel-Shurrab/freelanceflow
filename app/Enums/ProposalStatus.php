@@ -36,7 +36,7 @@ enum ProposalStatus: string
 
     public function countsAsActiveForProject(): bool
     {
-        return ! in_array($this, [self::Rejected, self::Expired]);
+        return ! in_array($this, [self::Rejected, self::Expired], true);
     }
 
     // For partial unique index logic
@@ -47,6 +47,6 @@ enum ProposalStatus: string
 
     public function isTerminal(): bool
     {
-        return in_array($this, [self::Approved, self::Rejected, self::Expired]);
+        return in_array($this, [self::Approved, self::Rejected, self::Expired], true);
     }
 }

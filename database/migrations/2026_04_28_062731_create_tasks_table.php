@@ -18,7 +18,7 @@ return new class extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->comment('Atomic work items within a Milestone');
-            $table->foreignIdFor(Milestone::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Milestone::class)->constrained()->restrictOnDelete();
             $table->foreignIdFor(User::class, 'assigned_to')->nullable()->constrained()->nullOnDelete();
             $table->string('name', 255);
             $table->text('description')->nullable();

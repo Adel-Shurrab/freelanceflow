@@ -37,7 +37,7 @@ enum InvoiceStatus: string
     // Time entries are READ-ONLY when invoice is in these states
     public function locksTimeEntries(): bool
     {
-        return in_array($this, [self::Sent, self::Overdue, self::Paid]);
+        return in_array($this, [self::Sent, self::Overdue, self::Paid], true);
     }
 
     public function canTransitionTo(self $target): bool
@@ -63,11 +63,11 @@ enum InvoiceStatus: string
 
     public function isTerminal(): bool
     {
-        return in_array($this, [self::Paid, self::Cancelled]);
+        return in_array($this, [self::Paid, self::Cancelled], true);
     }
 
     public function canBeCancelled(): bool
     {
-        return in_array($this, [self::Draft, self::Sent]);
+        return in_array($this, [self::Draft, self::Sent], true);
     }
 }

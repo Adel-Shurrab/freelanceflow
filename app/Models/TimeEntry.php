@@ -10,7 +10,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable('user_id', 'task_id', 'invoice_id', 'started_at', 'duration_minutes', 'ended_at', 'description', 'is_billable')]
+#[Fillable([
+    'user_id',
+    'task_id',
+    'invoice_id',
+    'started_at',
+    'ended_at',
+    'duration_minutes',
+    'description',
+    'is_billable',
+])]
 
 class TimeEntry extends Model
 {

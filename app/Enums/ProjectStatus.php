@@ -49,7 +49,7 @@ enum ProjectStatus: string
 
     public function canTransitionTo(self $target): bool
     {
-        return in_array($target, $this->allowedTransitions());
+        return in_array($target, $this->allowedTransitions(), true);
     }
 
     public function allowsProposals(): bool
@@ -74,11 +74,11 @@ enum ProjectStatus: string
             self::OnHold,
             self::Completed,
             self::Cancelled,
-        ]);
+        ], true);
     }
 
     public function isTerminal(): bool
     {
-        return in_array($this, [self::Completed, self::Cancelled]);
+        return in_array($this, [self::Completed, self::Cancelled], true);
     }
 }
