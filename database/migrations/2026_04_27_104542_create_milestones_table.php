@@ -19,7 +19,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Project::class)->constrained()->restrictOnDelete();
             $table->string('name', 255);
-            $table->string('description', 255)->nullable();
+            $table->text('description')->nullable();
             $table->enum('status', ['pending', 'in_progress', 'completed'])->default('pending');
             $table->smallInteger('position')->unsigned()->default(0)->comment('Display order within project');
             $table->date('due_date')->nullable()->comment('Cannot be after project.deadline');

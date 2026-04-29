@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Models\Invoice;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,7 +17,6 @@ return new class extends Migration
             $table->comment('All roles: super_admin, admin, freelancer, client — single-table with role discriminator');
 
             $table->id();
-            $table->foreignIdFor(Invoice::class)->nullable()->constrained()->nullOnDelete();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
