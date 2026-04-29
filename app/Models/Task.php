@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -43,6 +44,11 @@ class Task extends Model implements HasMedia
     public function assignedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function timeEntries(): HasMany
+    {
+        return $this->hasMany(TimeEntry::class);
     }
 
     public function registerMediaCollections(): void
