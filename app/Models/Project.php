@@ -91,7 +91,7 @@ class Project extends Model implements HasMedia
     {
         $this
             ->addMediaCollection('project_files')
-            ->useDisk('public')
+            ->useDisk('private')
         ;
     }
 

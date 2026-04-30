@@ -31,7 +31,7 @@ class Subscription extends Model
             'upgraded_from' => PlanType::class,
             'started_at' => 'datetime',
             'expires_at' => 'datetime',
-            'amount_paid' => 'decimal:8,2',
+            'amount_paid' => 'decimal:2',
         ];
     }
 

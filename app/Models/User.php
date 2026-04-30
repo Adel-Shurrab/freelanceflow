@@ -145,6 +145,11 @@ class User extends Authenticatable implements HasMedia
         ;
     }
 
+    public function signatures(): HasMany
+    {
+        return $this->hasMany(Signature::class, 'signer_id');
+    }
+
     protected function avatarUrl(): Attribute
     {
         return Attribute::get(

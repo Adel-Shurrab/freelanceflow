@@ -63,7 +63,7 @@ class Task extends Model implements HasMedia
     {
         $this
             ->addMediaCollection('task_files')
-            ->useDisk('public')
+            ->useDisk('private')
         ;
     }
 
