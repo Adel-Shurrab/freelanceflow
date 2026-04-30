@@ -57,19 +57,19 @@ class CheckPlanLimitMiddleware
     private function activeClientCount(User $user): int
     {
         return $user->clients()
-            ->where('status', '!=', ClientStatus::Archived->value, 'and')
-            ->count('*')
+            ->where('status', '!=', ClientStatus::Archived->value)
+            ->count()
         ;
     }
 
     private function activeProjectCount(User $user): int
     {
         return $user->projects()
-            ->whereIn('status', [
-                ProjectStatus::Active->value,
-                ProjectStatus::OnHold->value,
-            ], 'and', false)
-            ->count('*')
+            ->whereNotIn('status', [
+                ProjectStatus::Completed->value,
+                ProjectStatus::Cancelled->value,
+            ])
+            ->count()
         ;
     }
 }

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Enums\NotificationChannel;
+use App\Enums\PlanType;
+use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -44,6 +46,48 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    public function freelancer(): static
+    {
+        return $this->state(fn () => [
+            'role' => UserRole::Freelancer,
+            'plan_type' => PlanType::Free,
+        ]);
+    }
+
+    public function proFreelancer(): static
+    {
+        return $this->state(fn () => [
+            'role' => UserRole::Freelancer,
+            'plan_type' => PlanType::Pro,
+            'plan_started_at' => now(),
+            'plan_expires_at' => now()->addYear(),
+        ]);
+    }
+
+    public function client(): static
+    {
+        return $this->state(fn () => [
+            'role' => UserRole::Client,
+            'plan_type' => PlanType::Free,
+        ]);
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn () => [
+            'role' => UserRole::Admin,
+            'plan_type' => PlanType::Agency,
+        ]);
+    }
+
+    public function superAdmin(): static
+    {
+        return $this->state(fn () => [
+            'role' => UserRole::SuperAdmin,
+            'plan_type' => PlanType::Agency,
         ]);
     }
 }
