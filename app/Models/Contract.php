@@ -67,6 +67,6 @@ class Contract extends Model implements HasMedia
 
     public function signatureCount(): int
     {
-        return $this->signatures()->count();
+        return $this->signatures()->count('*');
     }
 }

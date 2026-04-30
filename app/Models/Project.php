@@ -66,7 +66,7 @@ class Project extends Model implements HasMedia
     public function activeProposal(): HasOne
     {
         return $this->hasOne(Proposal::class)
-            ->whereNotIn('status', ['rejected', 'expired'])
+            ->whereNotIn('status', ['rejected', 'expired'], 'and')
         ;
     }
 

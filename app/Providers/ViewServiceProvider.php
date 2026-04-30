@@ -27,7 +27,7 @@ class ViewServiceProvider extends ServiceProvider
                 'currentPlan' => $currentPlan,
                 'currentPlanLabel' => $currentPlan->label(),
                 'currentPlanColor' => $currentPlan->color(),
-                'unreadNotificationsCount' => $user->unreadNotifications()->count(),
+                'unreadNotificationsCount' => $user->unreadNotifications()->count('*'),
             ]);
         });
     }

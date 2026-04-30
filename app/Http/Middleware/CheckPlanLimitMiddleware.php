@@ -7,9 +7,7 @@ namespace App\Http\Middleware;
 use App\Enums\ClientStatus;
 use App\Enums\ProjectStatus;
 use App\Enums\UserRole;
-// use App\Models\Client;
-// use App\Models\Project;
-// use App\Models\User;
+use App\Models\User;
 use App\Support\ApiResponse;
 use Closure;
 use Illuminate\Http\Request;
@@ -21,7 +19,7 @@ class CheckPlanLimitMiddleware
     {
         $user = $request->user();
 
-        if (! $user) {
+        if (! ($user instanceof User)) {
             abort(401);
         }
 
@@ -58,24 +56,20 @@ class CheckPlanLimitMiddleware
 
     private function activeClientCount(User $user): int
     {
-        return Client::query()
-            ->where('user_id', $user->id)
-            ->where('status', '!=', ClientStatus::Archived->value)
-            ->whereNull('deleted_at')
-            ->count()
+        return $user->clients()
+            ->where('status', '!=', ClientStatus::Archived->value, 'and')
+            ->count('*')
         ;
     }
 
     private function activeProjectCount(User $user): int
     {
-        return Project::query()
-            ->where('user_id', $user->id)
+        return $user->projects()
             ->whereIn('status', [
                 ProjectStatus::Active->value,
                 ProjectStatus::OnHold->value,
-            ])
-            ->whereNull('deleted_at')
-            ->count()
+            ], 'and', false)
+            ->count('*')
         ;
     }
 }

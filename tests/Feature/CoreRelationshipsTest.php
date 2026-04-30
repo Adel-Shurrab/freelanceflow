@@ -31,7 +31,7 @@ class CoreRelationshipsTest extends TestCase
     {
         $freelancer = User::query()
             ->where('email', 'freelancer@freelanceflow.test')
-            ->firstOrFail()
+            ->firstOrFail(['*'])
         ;
 
         $this->assertCount(1, $freelancer->clients);
@@ -44,7 +44,7 @@ class CoreRelationshipsTest extends TestCase
     {
         $client = Client::query()
             ->where('email', 'client@acme.test')
-            ->firstOrFail()
+            ->firstOrFail(['*'])
         ;
 
         $this->assertNotNull($client->portalUser);
@@ -58,7 +58,7 @@ class CoreRelationshipsTest extends TestCase
     {
         $project = Project::query()
             ->where('name', 'Website Redesign')
-            ->firstOrFail()
+            ->firstOrFail(['*'])
         ;
 
         $this->assertCount(2, $project->milestones);
@@ -72,7 +72,7 @@ class CoreRelationshipsTest extends TestCase
     {
         $milestone = Milestone::query()
             ->where('name', 'Planning')
-            ->firstOrFail()
+            ->firstOrFail(['*'])
         ;
 
         $this->assertCount(1, $milestone->tasks);
@@ -84,7 +84,7 @@ class CoreRelationshipsTest extends TestCase
     {
         $task = Task::query()
             ->where('name', 'Collect requirements')
-            ->firstOrFail()
+            ->firstOrFail(['*'])
         ;
 
         $this->assertCount(1, $task->timeEntries);
@@ -95,7 +95,7 @@ class CoreRelationshipsTest extends TestCase
     {
         $invoice = Invoice::query()
             ->where('invoice_number', 'INV-2026-00001')
-            ->firstOrFail()
+            ->firstOrFail(['*'])
         ;
 
         $this->assertCount(2, $invoice->items);
@@ -109,7 +109,7 @@ class CoreRelationshipsTest extends TestCase
     {
         $proposal = Proposal::query()
             ->where('title', 'Website Redesign Proposal')
-            ->firstOrFail()
+            ->firstOrFail(['*'])
         ;
 
         $this->assertNotNull($proposal->contract);
@@ -118,7 +118,7 @@ class CoreRelationshipsTest extends TestCase
 
     public function test_contract_has_two_signatures(): void
     {
-        $contract = Contract::query()->firstOrFail();
+        $contract = Contract::query()->firstOrFail(['*']);
 
         $this->assertCount(2, $contract->signatures);
         $this->assertSame(2, $contract->signatureCount());
@@ -128,12 +128,12 @@ class CoreRelationshipsTest extends TestCase
     {
         $agency = User::query()
             ->where('email', 'agency@freelanceflow.test')
-            ->firstOrFail()
+            ->firstOrFail(['*'])
         ;
 
         $freelancer = User::query()
             ->where('email', 'freelancer@freelanceflow.test')
-            ->firstOrFail()
+            ->firstOrFail(['*'])
         ;
 
         $this->assertCount(1, $agency->teamMembers);
@@ -147,12 +147,12 @@ class CoreRelationshipsTest extends TestCase
     {
         $clientUser = User::query()
             ->where('email', 'client@freelanceflow.test')
-            ->firstOrFail()
+            ->firstOrFail(['*'])
         ;
 
         $freelancer = User::query()
             ->where('email', 'freelancer@freelanceflow.test')
-            ->firstOrFail()
+            ->firstOrFail(['*'])
         ;
 
         $this->assertCount(1, $clientUser->receivedClientInvitations);

@@ -78,8 +78,8 @@ class DemoDataSeeder extends Seeder
         $this->createPayment($invoice, $freelancer);
 
         TimeEntry::query()
-            ->where('user_id', $freelancer->id)
-            ->whereNull('invoice_id')
+            ->where('user_id', '=', $freelancer->id, 'and')
+            ->whereNull('invoice_id', 'and', false)
             ->update(['invoice_id' => $invoice->id])
         ;
 
