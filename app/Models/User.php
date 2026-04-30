@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -74,6 +75,48 @@ class User extends Authenticatable implements HasMedia
     public function projects(): HasMany
     {
         return $this->hasMany(Project::class);
+    }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function sentInvitations(): HasMany
+    {
+        return $this->hasMany(ClientInvitation::class, 'invited_by');
+    }
+
+    public function receivedClientInvitations(): HasMany
+    {
+        return $this->hasMany(ClientInvitation::class, 'client_user_id');
+    }
+
+    public function teamMembers(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'team_members',
+            'agency_user_id',
+            'member_user_id',
+        );
+    }
+
+    public function agencyAdmins(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'team_members',
+            'member_user_id',
+            'agency_user_id',
+        );
+    }
+
+    public function projectMemberships(): BelongsToMany
+    {
+        return $this->belongsToMany(Project::class, 'project_members')
+            ->withPivot(['assigned_at', 'assigned_by'])
+        ;
     }
 
     public function assignedTasks(): HasMany

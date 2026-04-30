@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('signer_type', 50)->comment('freelancer|client');
             $table->foreignIdFor(User::class, 'signer_id')->constrained()->restrictOnDelete();
             $table->enum('signature_type', ['typed_name'])->default('typed_name');
-            $table->text('signature_data')->comment('Typed full name');;
+            $table->text('signature_data')->comment('Typed full name');
             $table->string('ip_address', 45);
             $table->string('user_agent', 512);
             $table->dateTime('signed_at');

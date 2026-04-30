@@ -19,7 +19,6 @@ use Spatie\MediaLibrary\InteractsWithMedia;
     'user_id',
     'status',
     'content',
-    'pdf_path',
     'sent_at',
     'fully_signed_at',
 ])]
