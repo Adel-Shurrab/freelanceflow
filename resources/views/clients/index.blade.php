@@ -7,6 +7,39 @@
         <a href="{{ route('dashboard') }}">Dashboard</a>
     </p>
 
+    <form method="GET" action="{{ route('clients.index') }}" style="margin-bottom: 16px;">
+        <div style="margin-bottom: 8px;">
+            <label for="search">Search</label><br>
+            <input id="search" type="text" name="search" value="{{ $filters['search'] ?? '' }}"
+                placeholder="Search by name or email">
+
+            @error('search')
+                <p style="color: red;">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div style="margin-bottom: 8px;">
+            <label for="status">Status</label><br>
+            <select id="status" name="status">
+                <option value="">All statuses</option>
+
+                @foreach ($statuses as $status)
+                    <option value="{{ $status->value }}" @selected(($filters['status'] ?? null) === $status->value)>
+                        {{ $status->label() }}
+                    </option>
+                @endforeach
+            </select>
+
+            @error('status')
+                <p style="color: red;">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <button type="submit">Apply Filters</button>
+
+        <a href="{{ route('clients.index') }}">Clear</a>
+    </form>
+
     @if ($clients->isEmpty())
         <p>No clients found.</p>
     @else

@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Web;
 
+use App\Enums\ClientStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Client\IndexClientRequest;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Models\Client;
 use App\Models\User;
 use App\Services\ClientService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,18 +27,31 @@ class ClientController extends Controller
         private readonly ClientService $clientService,
     ) {}
 
-    public function index(Request $request): View
+    public function index(IndexClientRequest $request): View
     {
-        $this->authorize('viewAny', Client::class);
+        $filters = $request->validated();
 
-        $clients = Client::query()
-            ->forUser($request->user())
+        $clients = $this->clientQueryForUser($request->user())
+            ->when($filters['search'] ?? null, function (Builder $query, string $search): void {
+                $query->where(function (Builder $query) use ($search): void {
+                    $query
+                        ->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                    ;
+                });
+            })
+            ->when($filters['status'] ?? null, function (Builder $query, string $status): void {
+                $query->where('status', $status);
+            })
             ->latest()
             ->paginate(10)
+            ->withQueryString()
         ;
 
         return view('clients.index', [
             'clients' => $clients,
+            'filters' => $filters,
+            'statuses' => ClientStatus::cases(),
         ]);
     }
 
@@ -118,5 +134,16 @@ class ClientController extends Controller
         }
 
         return $query->findOrFail($clientId);
+    }
+
+    private function clientQueryForUser(User $user): Builder
+    {
+        $query = Client::query();
+
+        if ($user->role !== UserRole::SuperAdmin) {
+            $query->forUser($user);
+        }
+
+        return $query;
     }
 }
