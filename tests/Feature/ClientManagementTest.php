@@ -65,10 +65,12 @@ it('allows super admin to bypass client policy', function () {
 
 it('redirects guests away from clients pages', function () {
     $this->get(route('clients.index'))
-        ->assertRedirect(route('login'));
+        ->assertRedirect(route('login'))
+    ;
 
     $this->get(route('clients.create'))
-        ->assertRedirect(route('login'));
+        ->assertRedirect(route('login'))
+    ;
 });
 
 it('denies client users from viewing client management pages', function () {
@@ -76,11 +78,13 @@ it('denies client users from viewing client management pages', function () {
 
     $this->actingAs($clientUser)
         ->get(route('clients.index'))
-        ->assertForbidden();
+        ->assertForbidden()
+    ;
 
     $this->actingAs($clientUser)
         ->get(route('clients.create'))
-        ->assertForbidden();
+        ->assertForbidden()
+    ;
 });
 
 it('allows a freelancer to create a client', function () {
@@ -93,11 +97,13 @@ it('allows a freelancer to create a client', function () {
             'phone' => '+970599000000',
             'company' => 'Acme',
             'notes' => 'Important client.',
-        ]);
+        ])
+    ;
 
     $client = Client::query()
         ->where('email', 'client@acme.test')
-        ->firstOrFail();
+        ->firstOrFail()
+    ;
 
     $response->assertRedirect(route('clients.show', $client));
 
@@ -130,7 +136,8 @@ it('validates client creation data', function () {
             'phone',
             'company',
             'notes',
-        ]);
+        ])
+    ;
 });
 
 it('allows different freelancers to use the same client email', function () {
@@ -147,7 +154,8 @@ it('allows different freelancers to use the same client email', function () {
             'name' => 'Shared Email Client',
             'email' => 'shared@example.com',
         ])
-        ->assertRedirect();
+        ->assertRedirect()
+    ;
 
     $this->assertDatabaseHas('clients', [
         'user_id' => $freelancer->id,
@@ -170,11 +178,13 @@ it('returns 404 when a freelancer tries to view another freelancer client', func
 
     $this->actingAs($freelancer)
         ->get(route('clients.show', $client))
-        ->assertNotFound();
+        ->assertNotFound()
+    ;
 
     $this->actingAs($freelancer)
         ->get(route('clients.edit', $client))
-        ->assertNotFound();
+        ->assertNotFound()
+    ;
 });
 
 it('returns 404 when a freelancer tries to update another freelancer client', function () {
@@ -192,7 +202,8 @@ it('returns 404 when a freelancer tries to update another freelancer client', fu
             'name' => 'Hacked Name',
             'email' => 'hacked@example.com',
         ])
-        ->assertNotFound();
+        ->assertNotFound()
+    ;
 
     $this->assertDatabaseHas('clients', [
         'id' => $client->id,
@@ -210,9 +221,40 @@ it('allows a freelancer to soft delete their own client', function () {
 
     $this->actingAs($freelancer)
         ->delete(route('clients.destroy', $client))
-        ->assertRedirect(route('clients.index'));
+        ->assertRedirect(route('clients.index'))
+    ;
 
     $this->assertSoftDeleted('clients', [
         'id' => $client->id,
+    ]);
+});
+
+it('allows a freelancer to update their own client', function () {
+    $freelancer = User::factory()->freelancer()->create();
+
+    $client = Client::factory()->create([
+        'user_id' => $freelancer->id,
+        'name' => 'Old Name',
+        'email' => 'old@example.com',
+    ]);
+
+    $this->actingAs($freelancer)
+        ->patch(route('clients.update', $client), [
+            'name' => 'Updated Name',
+            'email' => 'updated@example.com',
+            'phone' => '+970599111111',
+            'company' => 'Updated Company',
+            'notes' => 'Updated notes.',
+        ])
+        ->assertRedirect(route('clients.show', $client))
+    ;
+
+    $this->assertDatabaseHas('clients', [
+        'id' => $client->id,
+        'name' => 'Updated Name',
+        'email' => 'updated@example.com',
+        'phone' => '+970599111111',
+        'company' => 'Updated Company',
+        'notes' => 'Updated notes.',
     ]);
 });
