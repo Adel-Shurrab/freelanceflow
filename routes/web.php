@@ -3,12 +3,9 @@
 use App\Http\Controllers\Web\Auth\LoginController;
 use App\Http\Controllers\Web\Auth\LogoutController;
 use App\Http\Controllers\Web\Auth\RegisterController;
+use App\Http\Controllers\Web\ClientController;
 use App\Http\Controllers\Web\DashboardController;
 use Illuminate\Support\Facades\Route;
-
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'create'])
@@ -29,6 +26,8 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::resource('/clients', ClientController::class);
+
     Route::get('/dashboard', DashboardController::class)
         ->name('dashboard')
     ;

@@ -5,31 +5,23 @@ declare(strict_types=1);
 namespace App\Http\Requests\Client;
 
 use App\Models\Client;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class UpdateClientRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        $client = $this->route('client');
-
-        return $client instanceof Client
-            && ($this->user()?->can('update', $client) ?? false);
+        return $this->user() !== null;
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, Rule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
-        /** @var Client $client */
-        $client = $this->route('client');
+        $clientId = (int) $this->route('client');
 
         return [
             'name' => ['required', 'string', 'min:2', 'max:150'],
@@ -39,9 +31,9 @@ class UpdateClientRequest extends FormRequest
                 'lowercase',
                 'email',
                 'max:255',
-                Rule::unique('clients', 'email')
+                Rule::unique(Client::class, 'email')
                     ->where('user_id', $this->user()?->id)
-                    ->ignore($client->id),
+                    ->ignore($clientId),
             ],
             'phone' => ['nullable', 'string', 'max:30'],
             'company' => ['nullable', 'string', 'max:150'],
