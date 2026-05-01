@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Enums\ClientStatus;
 use App\Models\Client;
 use App\Models\User;
-use App\Enums\ClientStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
 
@@ -267,7 +267,8 @@ it('prevents free freelancers from creating more than three active clients', fun
         ->count(3)
         ->create([
             'user_id' => $freelancer->id,
-        ]);
+        ])
+    ;
 
     $this->actingAs($freelancer)
         ->from(route('clients.create'))
@@ -276,7 +277,8 @@ it('prevents free freelancers from creating more than three active clients', fun
             'email' => 'fourth@example.com',
         ])
         ->assertRedirect(route('clients.create'))
-        ->assertSessionHasErrors('plan');
+        ->assertSessionHasErrors('plan')
+    ;
 
     $this->assertDatabaseMissing('clients', [
         'user_id' => $freelancer->id,
@@ -291,14 +293,16 @@ it('allows pro freelancers to create more than three clients', function () {
         ->count(3)
         ->create([
             'user_id' => $freelancer->id,
-        ]);
+        ])
+    ;
 
     $this->actingAs($freelancer)
         ->post(route('clients.store'), [
             'name' => 'Fourth Client',
             'email' => 'fourth@example.com',
         ])
-        ->assertRedirect();
+        ->assertRedirect()
+    ;
 
     $this->assertDatabaseHas('clients', [
         'user_id' => $freelancer->id,
@@ -314,7 +318,8 @@ it('does not count archived clients against the free client limit', function () 
         ->create([
             'user_id' => $freelancer->id,
             'status' => ClientStatus::Active,
-        ]);
+        ])
+    ;
 
     Client::factory()->create([
         'user_id' => $freelancer->id,
@@ -326,10 +331,64 @@ it('does not count archived clients against the free client limit', function () 
             'name' => 'Allowed Client',
             'email' => 'allowed@example.com',
         ])
-        ->assertRedirect();
+        ->assertRedirect()
+    ;
 
     $this->assertDatabaseHas('clients', [
         'user_id' => $freelancer->id,
         'email' => 'allowed@example.com',
     ]);
+});
+
+it('does not count soft deleted clients against the free client limit', function () {
+    $freelancer = User::factory()->freelancer()->create();
+
+    Client::factory()
+        ->count(3)
+        ->create([
+            'user_id' => $freelancer->id,
+        ])
+    ;
+
+    Client::query()
+        ->where('user_id', $freelancer->id)
+        ->firstOrFail()
+        ->delete()
+    ;
+
+    $this->actingAs($freelancer)
+        ->post(route('clients.store'), [
+            'name' => 'Replacement Client',
+            'email' => 'replacement@example.com',
+        ])
+        ->assertRedirect()
+    ;
+
+    $this->assertDatabaseHas('clients', [
+        'user_id' => $freelancer->id,
+        'email' => 'replacement@example.com',
+    ]);
+});
+
+it('allows a freelancer to view only their own clients', function () {
+    $freelancer = User::factory()->freelancer()->create();
+    $otherFreelancer = User::factory()->freelancer()->create();
+
+    Client::factory()->create([
+        'user_id' => $freelancer->id,
+        'name' => 'Own Client',
+        'email' => 'own@example.com',
+    ]);
+
+    Client::factory()->create([
+        'user_id' => $otherFreelancer->id,
+        'name' => 'Other Client',
+        'email' => 'other@example.com',
+    ]);
+
+    $this->actingAs($freelancer)
+        ->get(route('clients.index'))
+        ->assertOk()
+        ->assertSee('Own Client')
+        ->assertDontSee('Other Client');
 });
