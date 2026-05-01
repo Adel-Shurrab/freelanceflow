@@ -39,5 +39,6 @@ Route::prefix('v1')
                 // Route::apiResource('clients', ApiClientController::class);
                 // Route::apiResource('projects', ApiProjectController::class);
                 // Route::apiResource('invoices', ApiInvoiceController::class);
-            });
+            })
+        ;
     });

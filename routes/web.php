@@ -1,89 +1,39 @@
 <?php
 
+use App\Http\Controllers\Web\Auth\LoginController;
+use App\Http\Controllers\Web\Auth\LogoutController;
+use App\Http\Controllers\Web\Auth\RegisterController;
+use App\Http\Controllers\Web\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-/*
-|--------------------------------------------------------------------------
-| Auth Routes
-|--------------------------------------------------------------------------
-*/
+Route::middleware('guest')->group(function () {
+    Route::get('/register', [RegisterController::class, 'create'])
+        ->name('register')
+    ;
 
-// Route::get('/login', ...)->name('login');
-// Route::post('/login', ...);
-// Route::get('/register', ...)->name('register');
-// Route::post('/register', ...);
+    Route::post('/register', [RegisterController::class, 'store'])
+        ->name('register.store')
+    ;
 
-/*
-|--------------------------------------------------------------------------
-| Authenticated App Routes
-|--------------------------------------------------------------------------|
-*/
+    Route::get('/login', [LoginController::class, 'create'])
+        ->name('login')
+    ;
 
-Route::middleware([
-    'auth',
-    // 'verified',
-])
-    ->group(function () {
-        Route::get('/dashboard', function () {
-            return view('dashboard.index');
-        })->name('dashboard');
+    Route::post('/login', [LoginController::class, 'store'])
+        ->name('login.store')
+    ;
+});
 
-        /*
-        |--------------------------------------------------------------------------
-        | Freelancer Resources
-        |--------------------------------------------------------------------------
-        | Route::resource('clients', ClientController::class);
-        | Route::resource('projects', ProjectController::class);
-        | Route::resource('invoices', InvoiceController::class);
-        */
-    })
-;
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', DashboardController::class)
+        ->name('dashboard')
+    ;
 
-/*
-|--------------------------------------------------------------------------
-| Client Portal Routes
-|--------------------------------------------------------------------------
-*/
-
-Route::prefix('portal')
-    ->name('portal.')
-    ->middleware([
-        'auth',
-        //  role:client
-    ])
-    ->group(function () {
-        Route::get('/dashboard', function () {
-            return view('client-portal.dashboard');
-        })->name('dashboard');
-
-        // Route::get('/projects', [ClientPortalProjectController::class, 'index'])->name('projects.index');
-        // Route::get('/invoices', [ClientPortalInvoiceController::class, 'index'])->name('invoices.index');
-    })
-;
-
-/*
-|--------------------------------------------------------------------------
-| Admin Routes
-|--------------------------------------------------------------------------
-|
-*/
-
-Route::prefix('admin')
-    ->name('admin.')
-    ->middleware([
-        'auth',
-        'log.admin',
-        //  role:admin,super_admin
-    ])
-    ->group(function () {
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
-
-        // Route::resource('users', AdminUserController::class);
-        // Route::patch('/users/{user}/suspend', [AdminUserController::class, 'suspend'])->name('users.suspend');
-    });
+    Route::post('/logout', LogoutController::class)
+        ->name('logout')
+    ;
+});

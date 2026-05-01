@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
@@ -58,6 +57,7 @@ class TestMail extends Mailable
     {
         return $this
             ->subject('FreelanceFlow Mailtrap Test')
-            ->html('<h1>Mail works!</h1><p>This is a test email from FreelanceFlow.</p>');
+            ->html('<h1>Mail works!</h1><p>This is a test email from FreelanceFlow.</p>')
+        ;
     }
 }
