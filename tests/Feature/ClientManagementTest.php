@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Client;
 use App\Models\User;
+use App\Enums\ClientStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
 
@@ -256,5 +257,79 @@ it('allows a freelancer to update their own client', function () {
         'phone' => '+970599111111',
         'company' => 'Updated Company',
         'notes' => 'Updated notes.',
+    ]);
+});
+
+it('prevents free freelancers from creating more than three active clients', function () {
+    $freelancer = User::factory()->freelancer()->create();
+
+    Client::factory()
+        ->count(3)
+        ->create([
+            'user_id' => $freelancer->id,
+        ]);
+
+    $this->actingAs($freelancer)
+        ->from(route('clients.create'))
+        ->post(route('clients.store'), [
+            'name' => 'Fourth Client',
+            'email' => 'fourth@example.com',
+        ])
+        ->assertRedirect(route('clients.create'))
+        ->assertSessionHasErrors('plan');
+
+    $this->assertDatabaseMissing('clients', [
+        'user_id' => $freelancer->id,
+        'email' => 'fourth@example.com',
+    ]);
+});
+
+it('allows pro freelancers to create more than three clients', function () {
+    $freelancer = User::factory()->proFreelancer()->create();
+
+    Client::factory()
+        ->count(3)
+        ->create([
+            'user_id' => $freelancer->id,
+        ]);
+
+    $this->actingAs($freelancer)
+        ->post(route('clients.store'), [
+            'name' => 'Fourth Client',
+            'email' => 'fourth@example.com',
+        ])
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('clients', [
+        'user_id' => $freelancer->id,
+        'email' => 'fourth@example.com',
+    ]);
+});
+
+it('does not count archived clients against the free client limit', function () {
+    $freelancer = User::factory()->freelancer()->create();
+
+    Client::factory()
+        ->count(2)
+        ->create([
+            'user_id' => $freelancer->id,
+            'status' => ClientStatus::Active,
+        ]);
+
+    Client::factory()->create([
+        'user_id' => $freelancer->id,
+        'status' => ClientStatus::Archived,
+    ]);
+
+    $this->actingAs($freelancer)
+        ->post(route('clients.store'), [
+            'name' => 'Allowed Client',
+            'email' => 'allowed@example.com',
+        ])
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('clients', [
+        'user_id' => $freelancer->id,
+        'email' => 'allowed@example.com',
     ]);
 });

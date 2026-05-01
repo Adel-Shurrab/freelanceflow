@@ -11,11 +11,17 @@ use Illuminate\Support\Facades\DB;
 
 class ClientService
 {
+    public function __construct(
+        private readonly PlanLimitService $planLimitService,
+    ) {}
+
     /**
      * @param  array<string, mixed>  $data
      */
     public function create(User $freelancer, array $data): Client
     {
+        $this->planLimitService->ensureCanCreateClient($freelancer);
+
         return DB::transaction(function () use ($freelancer, $data): Client {
             return $freelancer->clients()->create([
                 'name' => $data['name'],

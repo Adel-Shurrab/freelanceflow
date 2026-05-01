@@ -29,7 +29,7 @@ class ClientController extends Controller
         $this->authorize('viewAny', Client::class);
 
         $clients = Client::query()
-            ->where('user_id', $request->user()->id)
+            ->forUser($request->user())
             ->latest()
             ->paginate(10)
         ;
@@ -114,7 +114,7 @@ class ClientController extends Controller
         $query = Client::query();
 
         if ($user->role !== UserRole::SuperAdmin) {
-            $query->where('user_id', $user->id);
+            $query->forUser($user);
         }
 
         return $query->findOrFail($clientId);
