@@ -31,7 +31,7 @@ class ClientController extends Controller
     {
         $filters = $request->validated();
 
-        $clients = $this->clientQueryForUser($request->user())
+        $clients = $this->clientQueryForFreelancer($request->user())
             ->when($filters['search'] ?? null, function (Builder $query, string $search): void {
                 $query->where(function (Builder $query) use ($search): void {
                     $query
@@ -136,12 +136,12 @@ class ClientController extends Controller
         return $query->findOrFail($clientId);
     }
 
-    private function clientQueryForUser(User $user): Builder
+    private function clientQueryForFreelancer(User $freelancer): Builder
     {
         $query = Client::query();
 
-        if ($user->role !== UserRole::SuperAdmin) {
-            $query->forUser($user);
+        if ($freelancer->role !== UserRole::SuperAdmin) {
+            $query->forUser($freelancer);
         }
 
         return $query;
