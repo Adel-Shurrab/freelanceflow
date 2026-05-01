@@ -41,4 +41,5 @@ Route::prefix('v1')
                 // Route::apiResource('invoices', ApiInvoiceController::class);
             })
         ;
-    });
+    })
+;
