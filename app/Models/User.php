@@ -34,6 +34,7 @@ use Spatie\Permission\Traits\HasRoles;
     'timezone',
     'language',
     'notification_preferences',
+    'last_login_at',
 ])]
 
 #[Hidden(['password', 'remember_token'])]

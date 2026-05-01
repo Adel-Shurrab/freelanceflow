@@ -32,6 +32,7 @@ class RegisterController extends Controller
             'timezone' => config('app.timezone', 'UTC'),
             'language' => 'en',
             'notification_preferences' => NotificationChannel::defaultPreferences(),
+            'last_login_at' => now(),
         ]);
 
         Auth::login($user);
