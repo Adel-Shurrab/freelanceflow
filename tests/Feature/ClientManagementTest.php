@@ -597,3 +597,31 @@ it('allows a freelancer to restore their archived client', function () {
         'status' => ClientStatus::Active->value,
     ]);
 });
+
+it('returns 404 when a freelancer tries to archive another freelancer client', function () {
+    $freelancer = User::factory()->freelancer()->create();
+    $otherFreelancer = User::factory()->freelancer()->create();
+
+    $client = Client::factory()->create([
+        'user_id' => $otherFreelancer->id,
+    ]);
+
+    $this->actingAs($freelancer)
+        ->patch(route('clients.archive', $client))
+        ->assertNotFound();
+});
+
+it('returns 404 when a freelancer tries to restore another freelancer client', function () {
+    $freelancer = User::factory()->freelancer()->create();
+    $otherFreelancer = User::factory()->freelancer()->create();
+
+    $client = Client::factory()->create([
+        'user_id' => $otherFreelancer->id,
+        'status' => ClientStatus::Archived,
+    ]);
+
+    $this->actingAs($freelancer)
+        ->patch(route('clients.restore', $client))
+        ->assertNotFound();
+});
+
