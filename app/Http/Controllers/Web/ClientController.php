@@ -129,7 +129,7 @@ class ClientController extends Controller
     {
         $client = $this->findClientForCurrentUserOrFail($request->user(), $client);
 
-        $this->authorize('update', $client);
+        $this->authorize('archive', $client);
 
         $this->clientService->archive($client);
 
@@ -143,7 +143,7 @@ class ClientController extends Controller
     {
         $client = $this->findClientForCurrentUserOrFail($request->user(), $client);
 
-        $this->authorize('update', $client);
+        $this->authorize('restore', $client);
 
         $this->clientService->restore($client);
 

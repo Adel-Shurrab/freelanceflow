@@ -33,6 +33,8 @@ it('allows a freelancer to manage their own client', function () {
     expect(Gate::forUser($freelancer)->allows('view', $client))->toBeTrue();
     expect(Gate::forUser($freelancer)->allows('update', $client))->toBeTrue();
     expect(Gate::forUser($freelancer)->allows('delete', $client))->toBeTrue();
+    expect(Gate::forUser($freelancer)->allows('archive', $client))->toBeTrue();
+    expect(Gate::forUser($freelancer)->allows('restore', $client))->toBeTrue();
 });
 
 it('denies a freelancer from managing another freelancer client', function () {
@@ -46,6 +48,8 @@ it('denies a freelancer from managing another freelancer client', function () {
     expect(Gate::forUser($freelancer)->allows('view', $client))->toBeFalse();
     expect(Gate::forUser($freelancer)->allows('update', $client))->toBeFalse();
     expect(Gate::forUser($freelancer)->allows('delete', $client))->toBeFalse();
+    expect(Gate::forUser($freelancer)->allows('archive', $client))->toBeFalse();
+    expect(Gate::forUser($freelancer)->allows('restore', $client))->toBeFalse();
 });
 
 it('allows super admin to bypass client policy', function () {
@@ -61,6 +65,8 @@ it('allows super admin to bypass client policy', function () {
     expect(Gate::forUser($superAdmin)->allows('view', $client))->toBeTrue();
     expect(Gate::forUser($superAdmin)->allows('update', $client))->toBeTrue();
     expect(Gate::forUser($superAdmin)->allows('delete', $client))->toBeTrue();
+    expect(Gate::forUser($superAdmin)->allows('archive', $client))->toBeTrue();
+    expect(Gate::forUser($superAdmin)->allows('restore', $client))->toBeTrue();
 });
 
 it('redirects guests away from clients pages', function () {
