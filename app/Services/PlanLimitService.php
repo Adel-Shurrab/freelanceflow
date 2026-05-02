@@ -19,7 +19,8 @@ class PlanLimitService
 
         $current = $user->clients()
             ->active()
-            ->count();
+            ->count()
+        ;
 
         if ($current < $limit) {
             return;

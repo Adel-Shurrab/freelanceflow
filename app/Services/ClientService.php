@@ -52,16 +52,9 @@ class ClientService
     public function delete(Client $client): void
     {
         DB::transaction(function () use ($client): void {
-            $hasUnpaidInvoices = $client->invoices()
-                ->whereIn('invoices.status', [
-                    InvoiceStatus::Sent->value,
-                    InvoiceStatus::Overdue->value,
-                ])
-                ->exists();
-
-            if ($hasUnpaidInvoices) {
+            if ($client->projects()->exists()) {
                 throw ValidationException::withMessages([
-                    'client' => 'This client has unpaid invoices and cannot be deleted.',
+                    'client' => 'This client has projects and should be archived instead of deleted.',
                 ]);
             }
 
@@ -71,6 +64,14 @@ class ClientService
 
     public function archive(Client $client): Client
     {
+        $hasUnpaidInvoices = $this->hasUnpaidInvoices($client);
+
+        if ($hasUnpaidInvoices) {
+            throw ValidationException::withMessages([
+                'client' => 'This client has unpaid invoices and cannot be archived.',
+            ]);
+        }
+
         return DB::transaction(function () use ($client): Client {
             $client->status = ClientStatus::Archived;
             $client->save();
@@ -79,7 +80,8 @@ class ClientService
                 ->where('status', ProjectStatus::Active->value)
                 ->update([
                     'status' => ProjectStatus::OnHold,
-                ]);
+                ])
+            ;
 
             return $client->refresh();
         });
@@ -96,5 +98,16 @@ class ClientService
 
             return $client->refresh();
         });
+    }
+
+    private function hasUnpaidInvoices(Client $client): bool
+    {
+        return $client->invoices()
+            ->whereIn('invoices.status', [
+                InvoiceStatus::Sent->value,
+                InvoiceStatus::Overdue->value,
+            ])
+            ->exists()
+        ;
     }
 }

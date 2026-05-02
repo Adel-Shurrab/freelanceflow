@@ -5,9 +5,6 @@ use App\Http\Middleware\ApiVersionMiddleware;
 use App\Http\Middleware\CheckPlanLimitMiddleware;
 use App\Http\Middleware\ForceJsonMiddleware;
 use App\Http\Middleware\LogAdminActionMiddleware;
-use App\Providers\AppServiceProvider;
-use App\Providers\RepositoryServiceProvider;
-use App\Providers\ViewServiceProvider;
 use App\Support\ApiResponse;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -23,11 +20,6 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withProviders([
-        AppServiceProvider::class,
-        RepositoryServiceProvider::class,
-        ViewServiceProvider::class,
-    ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(prepend: [
             ForceJsonMiddleware::class,

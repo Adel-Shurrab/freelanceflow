@@ -45,7 +45,8 @@ class ClientController extends Controller
             })
             ->latest()
             ->paginate(10)
-            ->withQueryString();
+            ->withQueryString()
+        ;
 
         return view('clients.index', [
             'clients' => $clients,

@@ -31,4 +31,35 @@ class InvoiceFactory extends Factory
             'paid_at' => null,
         ];
     }
+
+    public function sent(): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => InvoiceStatus::Sent,
+            'sent_at' => now(),
+        ]);
+    }
+
+    public function paid(): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => InvoiceStatus::Paid,
+            'paid_at' => now(),
+        ]);
+    }
+
+    public function overdue(): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => InvoiceStatus::Overdue,
+            'due_date' => now()->subDays(5)->toDateString(),
+        ]);
+    }
+
+    public function cancelled(): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => InvoiceStatus::Cancelled,
+        ]);
+    }
 }
