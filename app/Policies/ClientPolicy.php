@@ -36,9 +36,14 @@ class ClientPolicy
         return $this->view($user, $client);
     }
 
+    public function archive(User $user, Client $client): bool
+    {
+        return $this->view($user, $client);
+    }
+
     public function restore(User $user, Client $client): bool
     {
-        return false;
+        return $this->view($user, $client);
     }
 
     public function forceDelete(User $user, Client $client): bool

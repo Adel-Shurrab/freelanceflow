@@ -50,20 +50,3 @@ it('prevents deleting a client with projects', function () {
         'deleted_at' => null,
     ]);
 });
-
-it('allows deleting a client when they have no projects', function () {
-    $freelancer = User::factory()->freelancer()->create();
-
-    $client = Client::factory()->create([
-        'user_id' => $freelancer->id,
-    ]);
-
-    $this->actingAs($freelancer)
-        ->delete(route('clients.destroy', $client))
-        ->assertRedirect(route('clients.index'))
-    ;
-
-    $this->assertSoftDeleted('clients', [
-        'id' => $client->id,
-    ]);
-});

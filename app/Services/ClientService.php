@@ -64,15 +64,15 @@ class ClientService
 
     public function archive(Client $client): Client
     {
-        $hasUnpaidInvoices = $this->hasUnpaidInvoices($client);
-
-        if ($hasUnpaidInvoices) {
-            throw ValidationException::withMessages([
-                'client' => 'This client has unpaid invoices and cannot be archived.',
-            ]);
-        }
-
         return DB::transaction(function () use ($client): Client {
+            $hasUnpaidInvoices = $this->hasUnpaidInvoices($client);
+
+            if ($hasUnpaidInvoices) {
+                throw ValidationException::withMessages([
+                    'client' => 'This client has unpaid invoices and cannot be archived.',
+                ]);
+            }
+
             $client->status = ClientStatus::Archived;
             $client->save();
 
