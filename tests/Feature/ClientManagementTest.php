@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 use App\Enums\ClientStatus;
+use App\Enums\InvoiceStatus;
 use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
@@ -461,4 +464,63 @@ it('rejects invalid client status filters', function () {
         ->get(route('clients.index', ['status' => 'invalid-status']))
         ->assertSessionHasErrors('status')
     ;
+});
+
+it('prevents deleting a client with unpaid invoices', function () {
+    $freelancer = User::factory()->freelancer()->create();
+
+    $client = Client::factory()->create([
+        'user_id' => $freelancer->id,
+    ]);
+
+    $project = Project::factory()->create([
+        'user_id' => $freelancer->id,
+        'client_id' => $client->id,
+    ]);
+
+    Invoice::factory()->create([
+        'user_id' => $freelancer->id,
+        'project_id' => $project->id,
+        'status' => InvoiceStatus::Sent,
+    ]);
+
+    $this->actingAs($freelancer)
+        ->from(route('clients.show', $client))
+        ->delete(route('clients.destroy', $client))
+        ->assertRedirect(route('clients.show', $client))
+        ->assertSessionHasErrors('client')
+    ;
+
+    $this->assertDatabaseHas('clients', [
+        'id' => $client->id,
+        'deleted_at' => null,
+    ]);
+});
+
+it('allows deleting a client when invoices are not unpaid', function () {
+    $freelancer = User::factory()->freelancer()->create();
+
+    $client = Client::factory()->create([
+        'user_id' => $freelancer->id,
+    ]);
+
+    $project = Project::factory()->create([
+        'user_id' => $freelancer->id,
+        'client_id' => $client->id,
+    ]);
+
+    Invoice::factory()->create([
+        'user_id' => $freelancer->id,
+        'project_id' => $project->id,
+        'status' => InvoiceStatus::Paid,
+    ]);
+
+    $this->actingAs($freelancer)
+        ->delete(route('clients.destroy', $client))
+        ->assertRedirect(route('clients.index'))
+    ;
+
+    $this->assertSoftDeleted('clients', [
+        'id' => $client->id,
+    ]);
 });

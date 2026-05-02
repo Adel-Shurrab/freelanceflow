@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\ClientStatus;
+use App\Enums\InvoiceStatus;
 use App\Models\Client;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class ClientService
 {
@@ -49,6 +51,20 @@ class ClientService
     public function delete(Client $client): void
     {
         DB::transaction(function () use ($client): void {
+            $hasUnpaidInvoices = $client->invoices()
+                ->whereIn('invoices.status', [
+                    InvoiceStatus::Sent->value,
+                    InvoiceStatus::Overdue->value,
+                ])
+                ->exists()
+            ;
+
+            if ($hasUnpaidInvoices) {
+                throw ValidationException::withMessages([
+                    'client' => 'This client has unpaid invoices and cannot be deleted.',
+                ]);
+            }
+
             $client->delete();
         });
     }
