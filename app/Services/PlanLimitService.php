@@ -9,7 +9,7 @@ use Illuminate\Validation\ValidationException;
 
 class PlanLimitService
 {
-    public function ensureCanCreateClient(User $user): void
+    public function ensureCanActivateClient(User $user): void
     {
         $limit = $user->plan_type->maxClients();
 
@@ -19,8 +19,7 @@ class PlanLimitService
 
         $current = $user->clients()
             ->active()
-            ->count()
-        ;
+            ->count();
 
         if ($current < $limit) {
             return;

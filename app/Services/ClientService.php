@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Enums\ClientStatus;
 use App\Enums\InvoiceStatus;
+use App\Enums\ProjectStatus;
 use App\Models\Client;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,7 @@ class ClientService
      */
     public function create(User $freelancer, array $data): Client
     {
-        $this->planLimitService->ensureCanCreateClient($freelancer);
+        $this->planLimitService->ensureCanActivateClient($freelancer);
 
         return DB::transaction(function () use ($freelancer, $data): Client {
             return $freelancer->clients()->create([
@@ -56,8 +57,7 @@ class ClientService
                     InvoiceStatus::Sent->value,
                     InvoiceStatus::Overdue->value,
                 ])
-                ->exists()
-            ;
+                ->exists();
 
             if ($hasUnpaidInvoices) {
                 throw ValidationException::withMessages([
@@ -66,6 +66,35 @@ class ClientService
             }
 
             $client->delete();
+        });
+    }
+
+    public function archive(Client $client): Client
+    {
+        return DB::transaction(function () use ($client): Client {
+            $client->status = ClientStatus::Archived;
+            $client->save();
+
+            $client->projects()
+                ->where('status', ProjectStatus::Active->value)
+                ->update([
+                    'status' => ProjectStatus::OnHold,
+                ]);
+
+            return $client->refresh();
+        });
+    }
+
+    public function restore(Client $client): Client
+    {
+        return DB::transaction(function () use ($client): Client {
+            $this->planLimitService->ensureCanActivateClient($client->user);
+
+            $client->update([
+                'status' => ClientStatus::Active,
+            ]);
+
+            return $client->refresh();
         });
     }
 }

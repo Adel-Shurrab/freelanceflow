@@ -45,8 +45,7 @@ class ClientController extends Controller
             })
             ->latest()
             ->paginate(10)
-            ->withQueryString()
-        ;
+            ->withQueryString();
 
         return view('clients.index', [
             'clients' => $clients,
@@ -122,6 +121,34 @@ class ClientController extends Controller
         return redirect()
             ->route('clients.index')
             ->with('status', 'Client deleted successfully.')
+        ;
+    }
+
+    public function archive(Request $request, int $client): RedirectResponse
+    {
+        $client = $this->findClientForCurrentUserOrFail($request->user(), $client);
+
+        $this->authorize('update', $client);
+
+        $this->clientService->archive($client);
+
+        return redirect()
+            ->route('clients.show', $client)
+            ->with('status', 'Client archived successfully.')
+        ;
+    }
+
+    public function restore(Request $request, int $client): RedirectResponse
+    {
+        $client = $this->findClientForCurrentUserOrFail($request->user(), $client);
+
+        $this->authorize('update', $client);
+
+        $this->clientService->restore($client);
+
+        return redirect()
+            ->route('clients.show', $client)
+            ->with('status', 'Client restored successfully.')
         ;
     }
 

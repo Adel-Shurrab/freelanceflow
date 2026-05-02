@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Enums\ProjectStatus;
+use App\Models\Project;
 use App\Enums\ClientStatus;
 use App\Enums\InvoiceStatus;
 use App\Models\Client;
 use App\Models\Invoice;
-use App\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
@@ -522,5 +523,77 @@ it('allows deleting a client when invoices are not unpaid', function () {
 
     $this->assertSoftDeleted('clients', [
         'id' => $client->id,
+    ]);
+});
+
+it('allows a freelancer to archive their own client', function () {
+    $freelancer = User::factory()->freelancer()->create();
+
+    $client = Client::factory()->create([
+        'user_id' => $freelancer->id,
+        'status' => ClientStatus::Active,
+    ]);
+
+    $this->actingAs($freelancer)
+        ->patch(route('clients.archive', $client))
+        ->assertRedirect(route('clients.show', $client));
+
+    $this->assertDatabaseHas('clients', [
+        'id' => $client->id,
+        'status' => ClientStatus::Archived->value,
+    ]);
+});
+
+it('moves active projects to on hold when archiving a client', function () {
+    $freelancer = User::factory()->freelancer()->create();
+
+    $client = Client::factory()->create([
+        'user_id' => $freelancer->id,
+        'status' => ClientStatus::Active,
+    ]);
+
+    $activeProject = Project::factory()->create([
+        'user_id' => $freelancer->id,
+        'client_id' => $client->id,
+        'status' => ProjectStatus::Active,
+    ]);
+
+    $completedProject = Project::factory()->create([
+        'user_id' => $freelancer->id,
+        'client_id' => $client->id,
+        'status' => ProjectStatus::Completed,
+    ]);
+
+    $this->actingAs($freelancer)
+        ->patch(route('clients.archive', $client))
+        ->assertRedirect(route('clients.show', $client));
+
+    $this->assertDatabaseHas('projects', [
+        'id' => $activeProject->id,
+        'status' => ProjectStatus::OnHold->value,
+    ]);
+
+    $this->assertDatabaseHas('projects', [
+        'id' => $completedProject->id,
+        'status' => ProjectStatus::Completed->value,
+    ]);
+});
+
+
+it('allows a freelancer to restore their archived client', function () {
+    $freelancer = User::factory()->freelancer()->create();
+
+    $client = Client::factory()->create([
+        'user_id' => $freelancer->id,
+        'status' => ClientStatus::Archived,
+    ]);
+
+    $this->actingAs($freelancer)
+        ->patch(route('clients.restore', $client))
+        ->assertRedirect(route('clients.show', $client));
+
+    $this->assertDatabaseHas('clients', [
+        'id' => $client->id,
+        'status' => ClientStatus::Active->value,
     ]);
 });

@@ -35,4 +35,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', LogoutController::class)
         ->name('logout')
     ;
+
+    Route::patch('/clients/{client}/archive', [ClientController::class, 'archive'])
+        ->name('clients.archive')
+    ;
+
+    Route::patch('/clients/{client}/restore', [ClientController::class, 'restore'])
+        ->name('clients.restore')
+    ;
 });
