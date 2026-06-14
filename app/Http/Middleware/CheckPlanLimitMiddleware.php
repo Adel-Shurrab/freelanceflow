@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Enums\ClientStatus;
 use App\Enums\ProjectStatus;
 use App\Enums\UserRole;
 use App\Models\User;
@@ -57,7 +56,7 @@ class CheckPlanLimitMiddleware
     private function activeClientCount(User $user): int
     {
         return $user->clients()
-            ->where('status', '!=', ClientStatus::Archived->value)
+            ->active()
             ->count()
         ;
     }
