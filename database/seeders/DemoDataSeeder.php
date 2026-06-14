@@ -101,6 +101,19 @@ class DemoDataSeeder extends Seeder
             ],
         );
 
+        User::query()->updateOrCreate(
+            ['email' => 'admin@manus.im'],
+            [
+                'name' => 'Manus Admin',
+                'password' => Hash::make('password'),
+                'role' => UserRole::SuperAdmin,
+                'plan_type' => PlanType::Agency,
+                'email_verified_at' => now(),
+                'timezone' => 'UTC',
+                'language' => 'en',
+            ],
+        );
+
         $agencyAdmin = User::query()->updateOrCreate(
             ['email' => 'agency@freelanceflow.test'],
             [
