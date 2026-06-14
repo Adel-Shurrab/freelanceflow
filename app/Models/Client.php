@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ClientStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -67,5 +68,20 @@ class Client extends Model
             'client_id',
             'project_id',
         );
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('status', ClientStatus::Active->value);
+    }
+
+    public function scopeForUser(Builder $query, User $user): Builder
+    {
+        return $query->where('user_id', $user->id);
+    }
+
+    public function scopeArchived(Builder $query): Builder
+    {
+        return $query->where('status', ClientStatus::Archived->value);
     }
 }
