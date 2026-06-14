@@ -22,6 +22,8 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 
 #[Fillable([
     'name',
@@ -38,7 +40,7 @@ use Spatie\Permission\Traits\HasRoles;
 ])]
 
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements HasMedia
+class User extends Authenticatable implements HasMedia, FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens;
@@ -149,6 +151,11 @@ class User extends Authenticatable implements HasMedia
     public function signatures(): HasMany
     {
         return $this->hasMany(Signature::class, 'signer_id');
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->role->isAdminRole() || $this->role === UserRole::Freelancer;
     }
 
     protected function avatarUrl(): Attribute
