@@ -27,7 +27,6 @@ return Application::configure(basePath: dirname(__DIR__))
         AppServiceProvider::class,
         RepositoryServiceProvider::class,
         ViewServiceProvider::class,
-        \App\Providers\Filament\AdminPanelProvider::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(prepend: [

@@ -22,6 +22,7 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        \Illuminate\Support\Facades\Log::info('Filament AdminPanelProvider is being initialized');
         return $panel
             ->default()
             ->id('admin')
