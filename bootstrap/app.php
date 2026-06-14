@@ -27,6 +27,10 @@ return Application::configure(basePath: dirname(__DIR__))
         AppServiceProvider::class,
         RepositoryServiceProvider::class,
         ViewServiceProvider::class,
+        \App\Providers\AuthServiceProvider::class,
+        \App\Providers\EventServiceProvider::class,
+        \App\Providers\Filament\AdminPanelProvider::class,
+        \App\Providers\TelescopeServiceProvider::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(prepend: [
